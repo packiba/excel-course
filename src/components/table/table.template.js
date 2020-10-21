@@ -11,14 +11,22 @@ function createCell() {
 
 function toColumn(col) {
   return `
-    <div class="column">${col}</div>
+    <div class="column" data-type="resizable">
+        ${col}
+        <div class="col-resize" data-resize="col"></div>
+    </div>
   `
 }
 
 function createRow(content, rowNum = '') {
+  const resize = rowNum ?
+    '<div class="row-resize" data-resize="row"></div>' : ''
   return `
-    <div class="row">
-        <div class="row-info">${rowNum}</div> 
+    <div class="row" data-type="resizable">
+        <div class="row-info">
+            ${rowNum}
+            ${resize}
+        </div> 
         <div class="row-data">${content}</div> 
     </div>
   `
@@ -41,8 +49,6 @@ export function createTable(rowsCount = 100) {
   const cells = new Array(colsCount)
       .fill(createCell())
       .join('')
-
-  console.log(cells)
 
   rows.push(createRow(cols))
   for (let i = 0; i < rowsCount; i++) {
