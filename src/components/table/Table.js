@@ -1,25 +1,47 @@
-import {ExcelComponent} from '@core/ExcelComponent';
-import {createTable} from '@/components/table/table.template';
-import {resizeHandler} from '@/components/table/table.resize';
-import {shouldResize} from '@/components/table/table.functions';
+import {ExcelComponent} from '@core/ExcelComponent'
+import {createTable} from '@/components/table/table.template'
+import {resizeHandler} from '@/components/table/table.resize'
+import {matrix, nextSelector, shouldResize} from './table.functions'
+import {TableSelection} from '@/components/table/TableSelection'
+import {$} from '@core/dom'
 
 export class Table extends ExcelComponent {
   static className = 'excel__table'
 
-  constructor($root) {
+  constructor($root, options) {
     super($root, {
       name: 'Table',
-      listeners: ['mousedown']
-    });
+      listeners: ['mousedown', 'click', 'keydown', 'input'],
+      ...options
+    })
   }
 
   toHTML() {
     return createTable()
   }
 
-  // onClick() {
-  //   console.log('Click')
-  // }
+  prepare() {
+    this.selection = new TableSelection()
+  }
+
+  init() {
+    super.init()
+
+    this.selectCell(this.$root.find('[data-id="A:1"]'))
+
+    this.$on('formula:input', text => {
+      this.selection.current.text(text)
+    })
+
+    this.$on('formula:enter', () => {
+      this.selection.current.focus()
+    })
+  }
+
+  selectCell($cell) {
+    this.selection.select($cell)
+    this.$emit('table:select', $cell)
+  }
 
   onMousedown(event) {
     if (shouldResize(event)) {
@@ -27,11 +49,37 @@ export class Table extends ExcelComponent {
     }
   }
 
-  onMousemove() {
-    console.log('mousemove')
+  onClick(event) {
+    const $target = $(event.target)
+    if (event.shiftKey) {
+      const $cells = matrix($target, this.selection.current)
+          .map(id => this.$root.find(`[data-id="${id}"]`))
+      this.selection.selectGroup($cells)
+    } else {
+      this.selectCell($target)
+    }
   }
 
-  onMouseup() {
-    console.log('mouseup')
+  onKeydown(event) {
+    const keys = [
+      'Enter',
+      'Tab',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown'
+    ]
+
+    const {key} = event
+    if (keys.includes(key) && !event.shiftKey) {
+      event.preventDefault()
+      const id = this.selection.current.id(true)
+      const $next = this.$root.find(nextSelector(key, id))
+      this.selectCell($next)
+    }
+  }
+
+  onInput(event) {
+    this.$emit('table:input', $(event.target))
   }
 }
