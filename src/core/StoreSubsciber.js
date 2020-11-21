@@ -1,4 +1,4 @@
-import {isEqual} from '@core/util'
+import {isEqual, preventDefault} from '@core/util'
 
 export class StoreSubsciber {
   constructor(store) {
@@ -22,6 +22,10 @@ export class StoreSubsciber {
       })
 
       this.prevState = this.store.getState()
+
+      if (process.env.NODE_ENV === 'development') {
+        window['redux'] = this.prevState
+      }
     })
   }
 
