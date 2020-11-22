@@ -5,7 +5,7 @@ import {Toolbar} from '@/components/toolbar/Toolbar'
 import {Formula} from '@/components/formula/Formula'
 import {Table} from '@/components/table/Table'
 import {rootReducer} from '@/redux/rootReducer'
-import {CreateStore} from '@core/createStore'
+import {CreateStore} from '@core/store/CreateStore'
 import {storage, debounce} from '@core/util'
 import {normalizeInitialState} from '@/redux/initialState'
 
