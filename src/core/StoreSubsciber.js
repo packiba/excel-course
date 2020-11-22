@@ -1,4 +1,4 @@
-import {isEqual, preventDefault} from '@core/util'
+import {isEqual} from '@core/util'
 
 export class StoreSubsciber {
   constructor(store) {
